@@ -27,6 +27,16 @@ func main() {
 	user.ID = 1
 	user.Name = "Marcus Willock"
 
+	//Creating a test Student
+	s := new(models.Student)
+	s.ID = 1
+	s.ChineseName = "杜明卫"
+	s.Pinyin = "du4ming2wei4"
+	s.Sex = "Male"
+	s.EnglishName = "Marcus Willock"
+	s.StudentID = "007"
+	s.Class = "Teacher"
+	
 	//Force automatic table creation
 	// Database alias.
 	name := "default"
@@ -44,6 +54,7 @@ func main() {
 	}
 
 	fmt.Println(o.Insert(user))
+	fmt.Println(o.Insert(s))
 	
 	beego.Run()
 }

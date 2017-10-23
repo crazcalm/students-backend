@@ -31,7 +31,7 @@ func (c *LearningController) Get() {
 	o.Using("default")
 
 	//Searching for a user
-	user := models.User{ID:1}
+	user := models.Student{ID:1}
 
 	err := o.Read(&user)
 	
@@ -40,7 +40,7 @@ func (c *LearningController) Get() {
 	} else if err == orm.ErrMissPK {
 	    fmt.Println("No primary key found.")
 	} else {
-	    fmt.Println(user.ID, user.Name)
+	    fmt.Println(user.ID, user.ChineseName)
 	}
 	
 	//This is an example of sending json
