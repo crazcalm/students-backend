@@ -24,12 +24,10 @@ func main() {
 
 	//Creating a test user to mess with
 	user := new(models.User)
-	user.ID = 1
 	user.Name = "Marcus Willock"
 
 	//Creating a test Student
 	s := new(models.Student)
-	s.ID = 1
 	s.ChineseName = "杜明卫"
 	s.Pinyin = "du4ming2wei4"
 	s.Sex = "Male"
@@ -43,7 +41,7 @@ func main() {
 	
 	// Drop table and re-create.
 	force := true
-	
+
 	// Print log.
 	verbose := true
 	
@@ -58,4 +56,3 @@ func main() {
 	
 	beego.Run()
 }
-
