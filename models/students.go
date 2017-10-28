@@ -4,19 +4,22 @@ import (
 	"fmt"
 	"log"
 	"strings"
+	"time"
     "github.com/astaxie/beego/orm"
     "github.com/astaxie/beego/validation"
 )
 
 //Student struct to hold student information
 type Student struct {
-	ID			int		`json:"-", orm:"auto", valid:"Required"`
-	ChineseName string 	`csv:"chinese_name", json:"chinese_name", valid:"Required"`
-	Pinyin      string 	`csv:"pinyin", json:"pinyin", valid:"Required"`
-	EnglishName string 	`csv:"english_name", json:english_name, valid:"Required"`
-	StudentID   string 	`csv:"student_id", json:"student_id", orm:"student_id", valid:"Required"`
-	Class		string	`json:"class", valid:"Required"`
-	Sex			string	`json:"-", valid:"Required"`
+	ID			int			`json:"-", orm:"auto", valid:"Required"`
+	ChineseName string 		`csv:"chinese_name", json:"chinese_name", valid:"Required"`
+	Pinyin      string 		`csv:"pinyin", json:"pinyin", valid:"Required"`
+	EnglishName string 		`csv:"english_name", json:english_name, valid:"Required"`
+	StudentID   string 		`csv:"student_id", json:"student_id", orm:"student_id", valid:"Required"`
+	Class		string		`json:"class", valid:"Required"`
+	Sex			string		`json:"-", valid:"Required"`
+	Created 	time.Time 	`orm:"auto_now_add;type(datetime)"`
+	Updated 	time.Time 	`orm:"auto_now;type(datetime)"`
 }
 
 // Valid - If your struct implemented interface `validation.ValidFormer`
@@ -43,7 +46,8 @@ func (s *Student) Valid(v *validation.Validation) {
 	}
 
 	// Limit the sexes to male of female
-	if strings.EqualFold(s.Sex, "male") == false || strings.EqualFold(s.Sex, "female") == false {
+	if strings.Contains(s.Sex, "male") == false && strings.Contains(s.Sex, "female") == false {
+		fmt.Println(s.Sex)
 		v.SetError("Sex_options", "Can only by 'male' or 'female'")
 	}
 }
