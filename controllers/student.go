@@ -63,7 +63,7 @@ func (c *StudentController) Post (){
 	err = models.NewStudent(v["chinese_name"], v["pinyin"], v["english_name"], v["student_id"], v["class"], v["sex"])
 	if err != nil {
 		log.Println(err)
-		c.Data["json"] = fmt.Sprintf("{'error': %s}", err.Error())
+		c.Data["json"] = fmt.Sprintf(err.Error())
 		c.ServeJSON()
 	}
 }

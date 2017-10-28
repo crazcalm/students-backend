@@ -22,13 +22,34 @@ type Student struct {
 // Valid - If your struct implemented interface `validation.ValidFormer`
 // When all tests in StructTag succeed, it will execute Valid function for custom validation
 func (s *Student) Valid(v *validation.Validation) {
-	if strings.Compare(s.EnglishName, "") == 0 {
+	//Check for empty strings
+	if strings.EqualFold(s.EnglishName, "") == true {
 		v.SetError("English Name", "Cannot be empty")
+	}
+	if strings.EqualFold(s.ChineseName, "") == true {
+		v.SetError("Chinese Name", "Cannot be empty")
+	}
+	if strings.EqualFold(s.Pinyin, "") == true {
+		v.SetError("Pinyin", "Cannot be empty")
+	}
+	if strings.EqualFold(s.StudentID, "") == true {
+		v.SetError("Student ID", "Cannot be empty")
+	}
+	if strings.EqualFold(s.Class, "") == true {
+		v.SetError("Class", "Cannot be empty")
+	}
+	if strings.EqualFold(s.Sex, "") == true {
+		v.SetError("Sex", "Cannot be empty")
+	}
+
+	// Limit the sexes to male of female
+	if strings.EqualFold(s.Sex, "male") == false || strings.EqualFold(s.Sex, "female") == false {
+		v.SetError("Sex_options", "Can only by 'male' or 'female'")
 	}
 }
 
 //NewStudent Adds a new student to the database
-func NewStudent(cName, pinyin, eName, sID, class, sex string) error {
+func NewStudent(cName, pinyin, eName, sID, class, sex string) (err error) {
 	//Get DB conn
 	o := orm.NewOrm()
 
@@ -47,21 +68,21 @@ func NewStudent(cName, pinyin, eName, sID, class, sex string) error {
 	//Validate New Student
 	b, err := valid.Valid(s)
 	if err != nil {
-		return err
+		return
 	}
 
 	if !b {
 		// validation does not pass
-		// blabla...
-		for _, err := range valid.Errors {
-			log.Println(err.Key, err.Message)
+		for _, vError := range valid.Errors {
+			log.Println(vError.Key, vError.Message)
+			err = fmt.Errorf("%s: %s", vError.Key, vError.Message)
+			return
 		}
-		return fmt.Errorf("validation errors were found")
 	}
 
 	//Insert into the database
 	_, err = o.Insert(s)
-	return err
+	return
 }
 
 func init() {
