@@ -1,2 +1,6 @@
 # md files
 *.backup
+
+
+# testing db
+testing.db
