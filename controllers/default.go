@@ -61,7 +61,7 @@ func (c *LearningController) Post (){
 	var v map[string]string
 	err := json.Unmarshal(c.Ctx.Input.RequestBody, &v)
 	if err != nil {
-		fmt.Println(err)
+		log.Fatal(err)
 	}
 	fmt.Println(v)
 
@@ -69,7 +69,6 @@ func (c *LearningController) Post (){
 	name := v["name"]
 	if name == "" {
 		c.Ctx.WriteString("name is empty\n")
-	    return
 	}
 
 	err = models.NewUser(name)
