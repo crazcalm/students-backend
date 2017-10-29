@@ -4,9 +4,8 @@ import (
 	"fmt"
 	"log"
 	"encoding/json"
-	"students/models"
+	_ "github.com/mattn/go-sqlite3" //database driver
 	"github.com/astaxie/beego"
-	"github.com/astaxie/beego/orm"
 )
 
 //MainController the default provided by the Bee tool
@@ -29,31 +28,13 @@ func (c *MainController) Get() {
 //Get -- Learning this stuff
 func (c *LearningController) Get() {
 	//Creting a connection to the database
-	o := orm.NewOrm()
-	o.Using("default")
-
-	//Searching for a user
-	user := models.User{ID:1}
-
-	err := o.Read(&user)
-	
-	if err == orm.ErrNoRows {
-	    fmt.Println("No result found.")
-	} else if err == orm.ErrMissPK {
-	    fmt.Println("No primary key found.")
-	}
-	
-	//This is an example of sending json
-	c.Data["json"] = &user
+	c.Data["json"] = "nothing here"
 	c.ServeJSON()
 }
 
 //Post -- Learning how to use post
 func (c *LearningController) Post (){
-	c.Data["Website"] = "Now website"
-	c.Data["Email"] = "marcuswillock@qq.com"
-	c.TplName = "index.tpl"
-
+	//Trying to see into the request body
 	fmt.Println("Request body below:")
 	fmt.Println(c.Ctx.Input.RequestBody)
 
@@ -69,10 +50,5 @@ func (c *LearningController) Post (){
 	name := v["name"]
 	if name == "" {
 		c.Ctx.WriteString("name is empty\n")
-	}
-
-	err = models.NewUser(name)
-	if err != nil {
-		log.Fatal(err)
 	}
 }

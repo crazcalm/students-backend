@@ -4,3 +4,4 @@
 
 # testing db
 testing.db
+db/*.db

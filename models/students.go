@@ -5,7 +5,7 @@ import (
 	"log"
 	"strings"
 	"time"
-    "github.com/astaxie/beego/orm"
+    _ "github.com/mattn/go-sqlite3" //orm driver
     "github.com/astaxie/beego/validation"
 )
 
@@ -16,7 +16,7 @@ type Student struct {
 	Pinyin      string 		`csv:"pinyin", json:"pinyin", valid:"Required"`
 	EnglishName string 		`csv:"english_name", json:english_name, valid:"Required"`
 	StudentID   string 		`csv:"student_id", json:"student_id", orm:"student_id", valid:"Required"`
-	Class		string		`json:"class", valid:"Required"`
+	Class		*Class		`orm:"rel(fk), json:"class", valid:"Required""`
 	Sex			string		`json:"-", valid:"Required"`
 	Created 	time.Time 	`orm:"auto_now_add;type(datetime)"`
 	Updated 	time.Time 	`orm:"auto_now;type(datetime)"`
@@ -38,9 +38,6 @@ func (s *Student) Valid(v *validation.Validation) {
 	if strings.EqualFold(s.StudentID, "") == true {
 		v.SetError("Student ID", "Cannot be empty")
 	}
-	if strings.EqualFold(s.Class, "") == true {
-		v.SetError("Class", "Cannot be empty")
-	}
 	if strings.EqualFold(s.Sex, "") == true {
 		v.SetError("Sex", "Cannot be empty")
 	}
@@ -54,16 +51,12 @@ func (s *Student) Valid(v *validation.Validation) {
 
 //NewStudent Adds a new student to the database
 func NewStudent(cName, pinyin, eName, sID, class, sex string) (err error) {
-	//Get DB conn
-	o := orm.NewOrm()
-
 	//Create Student
 	s := new(Student)
 	s.ChineseName = cName
 	s.Pinyin = pinyin
 	s.EnglishName = eName
 	s.StudentID = sID
-	s.Class = class
 	s.Sex = sex
 
 	//Initialize validation object
@@ -83,13 +76,5 @@ func NewStudent(cName, pinyin, eName, sID, class, sex string) (err error) {
 			return
 		}
 	}
-
-	//Insert into the database
-	_, err = o.Insert(s)
 	return
-}
-
-func init() {
-	// register model
-	orm.RegisterModel(new(Student))
 }

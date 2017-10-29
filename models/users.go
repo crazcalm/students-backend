@@ -1,7 +1,7 @@
 package models
 
 import (
-    "github.com/astaxie/beego/orm"
+    _ "github.com/mattn/go-sqlite3" //orm driver
 )
 
 //User -- Learning Model Struct
@@ -17,15 +17,7 @@ func (u *User) TableName() string {
 }
 
 //NewUser -- testing this out
-func NewUser(name string) error {
-	o := orm.NewOrm()
+func NewUser(name string) {
 	user := new(User)
 	user.Name = name
-	_,err := o.Insert(user)
-	return err
-}
-
-func init() {
-	// register model
-	orm.RegisterModel(new(User))
 }
