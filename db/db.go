@@ -1,35 +1,40 @@
 package db
 
-import(
-	"os"
-	"log"
+import (
 	"database/sql"
-	_ "github.com/mattn/go-sqlite3" //database driver
+	"encoding/json"
+	"fmt"
+	_ "github.com/lib/pq" //database driver
+	"io/ioutil"
+	"log"
 )
 
-//DB gives out connections to the database
-func DB() *sql.Tx {
-	os.Remove("./testing.db")
-	
-	db, err := sql.Open("sqlite3", "./db/testing.db")
+func getConfig() map[string]string {
+	var config map[string]string
+
+	file, err := ioutil.ReadFile("config.json")
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	sqlStmt := `
-		PRAGMA foreign_keys = ON;
-		`
-	_, err = db.Exec(sqlStmt)
+	err = json.Unmarshal(file, &config)
 	if err != nil {
-		log.Printf("%q: %s\n", err, sqlStmt)
 		log.Fatal(err)
 	}
 
-	tx, err := db.Begin()
-	if err != nil {
-		log.Fatal(err)
-	}
-	
-	return tx
+	return config
 }
 
+//DB gives out connections to the database
+func DB() *sql.DB {
+	//Get secret values from config
+	config := getConfig()
+
+	connStr := fmt.Sprintf("user=%s dbname=%s password=%s", config["db_user"], config["db_name"], config["db_user_password"])
+	db, err := sql.Open("postgres", connStr)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return db
+}

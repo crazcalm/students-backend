@@ -2,24 +2,25 @@ package models
 
 import (
 	"fmt"
+	"github.com/astaxie/beego/validation"
 	"log"
+	"strconv"
 	"strings"
+	"students/db"
 	"time"
-    _ "github.com/mattn/go-sqlite3" //orm driver
-    "github.com/astaxie/beego/validation"
 )
 
 //Student struct to hold student information
 type Student struct {
-	ID			int			`json:"-", orm:"auto", valid:"Required"`
-	ChineseName string 		`csv:"chinese_name", json:"chinese_name", valid:"Required"`
-	Pinyin      string 		`csv:"pinyin", json:"pinyin", valid:"Required"`
-	EnglishName string 		`csv:"english_name", json:english_name, valid:"Required"`
-	StudentID   string 		`csv:"student_id", json:"student_id", orm:"student_id", valid:"Required"`
-	Class		*Class		`orm:"rel(fk), json:"class", valid:"Required""`
-	Sex			string		`json:"-", valid:"Required"`
-	Created 	time.Time 	`orm:"auto_now_add;type(datetime)"`
-	Updated 	time.Time 	`orm:"auto_now;type(datetime)"`
+	ID          int       `json:"-", orm:"auto", valid:"Required"`
+	ChineseName string    `csv:"chinese_name", json:"chinese_name", valid:"Required"`
+	Pinyin      string    `csv:"pinyin", json:"pinyin", valid:"Required"`
+	EnglishName string    `csv:"english_name", json:english_name, valid:"Required"`
+	StudentID   string    `csv:"student_id", json:"student_id", orm:"student_id", valid:"Required"`
+	ClassID     int       `orm:"rel(fk), json:"class_id", valid:"Required""`
+	SexID       int       `json:"sex_id", valid:"Required"`
+	Created     time.Time `orm:"auto_now_add;type(datetime)"`
+	Updated     time.Time `orm:"auto_now;type(datetime)"`
 }
 
 // Valid - If your struct implemented interface `validation.ValidFormer`
@@ -38,26 +39,24 @@ func (s *Student) Valid(v *validation.Validation) {
 	if strings.EqualFold(s.StudentID, "") == true {
 		v.SetError("Student ID", "Cannot be empty")
 	}
-	if strings.EqualFold(s.Sex, "") == true {
-		v.SetError("Sex", "Cannot be empty")
-	}
-
-	// Limit the sexes to male of female
-	if strings.Contains(s.Sex, "male") == false && strings.Contains(s.Sex, "female") == false {
-		fmt.Println(s.Sex)
-		v.SetError("Sex_options", "Can only by 'male' or 'female'")
-	}
 }
 
 //NewStudent Adds a new student to the database
-func NewStudent(cName, pinyin, eName, sID, class, sex string) (err error) {
+func NewStudent(cName, pinyin, eName, sID, classID, sexID string) (err error) {
 	//Create Student
 	s := new(Student)
 	s.ChineseName = cName
 	s.Pinyin = pinyin
 	s.EnglishName = eName
 	s.StudentID = sID
-	s.Sex = sex
+	s.ClassID, err = strconv.Atoi(classID)
+	if err != nil {
+		return
+	}
+	s.SexID, err = strconv.Atoi(sexID)
+	if err != nil {
+		return
+	}
 
 	//Initialize validation object
 	valid := validation.Validation{}
@@ -76,5 +75,20 @@ func NewStudent(cName, pinyin, eName, sID, class, sex string) (err error) {
 			return
 		}
 	}
+
+	//Add the new student to the database
+	conn := db.DB()
+	defer conn.Close()
+	row := conn.QueryRow(`
+		INSERT INTO students 
+		(chinese_name, pinyin, english_name,
+		 student_id, class_id, sex_id) 
+		 values($1, $2, $3, $4, $5, $6)`, s.ChineseName, s.Pinyin, s.EnglishName, s.StudentID, s.ClassID, s.SexID)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	defer conn.Close()
+	log.Println(row)
 	return
 }

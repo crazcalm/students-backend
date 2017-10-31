@@ -1,11 +1,11 @@
 package controllers
 
 import (
-	"fmt"
-	"log"
 	"encoding/json"
-	_ "github.com/mattn/go-sqlite3" //database driver
+	"fmt"
 	"github.com/astaxie/beego"
+	_ "github.com/mattn/go-sqlite3" //database driver
+	"log"
 )
 
 //MainController the default provided by the Bee tool
@@ -33,7 +33,7 @@ func (c *LearningController) Get() {
 }
 
 //Post -- Learning how to use post
-func (c *LearningController) Post (){
+func (c *LearningController) Post() {
 	//Trying to see into the request body
 	fmt.Println("Request body below:")
 	fmt.Println(c.Ctx.Input.RequestBody)
