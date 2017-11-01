@@ -12,15 +12,15 @@ import (
 
 //Student struct to hold student information
 type Student struct {
-	ID          int       `json:"-", orm:"auto", valid:"Required"`
+	ID          int       `json:"id", valid:"Required"`
 	ChineseName string    `csv:"chinese_name", json:"chinese_name", valid:"Required"`
 	Pinyin      string    `csv:"pinyin", json:"pinyin", valid:"Required"`
 	EnglishName string    `csv:"english_name", json:english_name, valid:"Required"`
 	StudentID   string    `csv:"student_id", json:"student_id", orm:"student_id", valid:"Required"`
-	ClassID     int       `orm:"rel(fk), json:"class_id", valid:"Required""`
+	ClassID     int       `json:"class_id", valid:"Required"`
 	SexID       int       `json:"sex_id", valid:"Required"`
-	Created     time.Time `orm:"auto_now_add;type(datetime)"`
-	Updated     time.Time `orm:"auto_now;type(datetime)"`
+	Created     time.Time `json:"-"`
+	Updated     time.Time `json:"-"`
 }
 
 // Valid - If your struct implemented interface `validation.ValidFormer`
@@ -88,7 +88,7 @@ func NewStudent(cName, pinyin, eName, sID, classID, sexID string) (err error) {
 		log.Println(err)
 		return
 	}
-	defer conn.Close()
+
 	log.Println(row)
 	return
 }
