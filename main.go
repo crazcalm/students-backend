@@ -12,7 +12,7 @@ import (
 func main() {
 	conn := db.DB()
 
-	rows, err := conn.Query("select * from class")
+	rows, err := conn.Query("select id, name from class")
 	if err != nil {
 		log.Fatal(err)
 	}
