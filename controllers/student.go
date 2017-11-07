@@ -1,6 +1,8 @@
 package controllers
 
 import (
+	"strconv"
+	"strings"
 	"encoding/json"
 	"fmt"
 	"github.com/astaxie/beego"
@@ -12,13 +14,47 @@ import (
 type StudentController struct {
 	beego.Controller
 }
+//Delete -- Flips the delete flag for a student
+func (c *StudentController) Delete(){
+	fmt.Println("Request body below:")
+	fmt.Println(c.Ctx.Input.RequestBody)
+
+	//values in request
+	var v map[string]string
+	err := json.Unmarshal(c.Ctx.Input.RequestBody, &v)
+	if err != nil {
+		log.Println(err)
+	}
+	fmt.Println(v)
+
+	//Confirm that and id was sent
+	if strings.EqualFold(v["id"], "") == true {
+		err = fmt.Errorf("JSON missing field id")
+		return
+	}
+
+	id, err := strconv.Atoi(v["id"])
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	//Try to delete the student
+	err = models.DeleteStudent(id)
+	if err != nil {
+		log.Println(err)
+		c.Data["json"] = fmt.Sprintf(err.Error())
+		c.ServeJSON()
+		return
+	}
+	c.Data["json"] = "success"
+	c.ServeJSON()
+	return
+}
+
 
 //Post -- Learning how to use post
 func (c *StudentController) Post() {
-	c.Data["Website"] = "Now website"
-	c.Data["Email"] = "marcuswillock@qq.com"
-	c.TplName = "index.tpl"
-
 	fmt.Println("Request body below:")
 	fmt.Println(c.Ctx.Input.RequestBody)
 

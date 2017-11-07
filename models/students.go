@@ -41,6 +41,47 @@ func (s *Student) Valid(v *validation.Validation) {
 	}
 }
 
+//DeleteStudent Sets the delete flag to true
+func DeleteStudent(id int) (err error) {
+	//Gets a connection to the database
+	conn := db.DB()
+	defer conn.Close()
+
+	//Determine if student exists
+	rows, err := conn.Query(`
+	SELECT chinese_name FROM students WHERE id = $1
+	`, id)
+	defer rows.Close()
+
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	var name string
+	for rows.Next(){
+		err = rows.Scan(&name)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+	}
+
+	if strings.EqualFold(name, "") == true {
+		err = fmt.Errorf("Student does not exist")
+		return
+	}
+
+	//Flip the delete flag
+	_, err = conn.Query(`UPDATE students SET deleted = true WHERE id = $1`, id)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	return
+}
+
 //NewStudent Adds a new student to the database
 func NewStudent(cName, pinyin, eName, sID, classID, sexID string) (err error) {
 	//Create Student
