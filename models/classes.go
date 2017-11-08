@@ -21,6 +21,41 @@ func (c *Class) Valid (v *validation.Validation){
 	}
 }
 
+//DeleteClass -- flips delete flag for class
+func DeleteClass(id int) (err error) {
+	conn := db.DB()
+	defer conn.Close()
+
+	//Determine if the class exists
+	rows, err := conn.Query(`SELECT name FROM class WHERE id = $1`, id)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	var name string
+	for rows.Next(){
+		err = rows.Scan(&name)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+	}
+
+	if strings.EqualFold(name, "") == true {
+		err = fmt.Errorf("Class does not exist")
+		return
+	}
+
+	//Flip the delete flag
+	_, err = conn.Query(`UPDATE class SET deleted = true WHERE id = $1`, id)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	return
+}
+
 //NewClass -- adds a new class to the database
 func NewClass(name string) (err error) {
 	c := new(Class)
