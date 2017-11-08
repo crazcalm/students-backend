@@ -82,6 +82,64 @@ func DeleteStudent(id int) (err error) {
 	return
 }
 
+//UpdateStudent -- Updates the information for a student
+func UpdateStudent(ID, cName, pinyin, eName, sID, classID, sexID string) (err error) {
+	//initialize a student
+	s := new(Student)
+	s.ID, err = strconv.Atoi(ID)
+	if err != nil {
+		return
+	}
+	s.ChineseName = cName
+	s.Pinyin = pinyin
+	s.EnglishName = eName
+	s.StudentID = sID
+	s.ClassID, err = strconv.Atoi(classID)
+	if err != nil {
+		return
+	}
+	s.SexID, err = strconv.Atoi(sexID)
+	if err != nil {
+		return
+	}
+
+	//Initialize validation object
+	valid := validation.Validation{}
+
+	//Validate New Student
+	b, err := valid.Valid(s)
+	if err != nil {
+		return
+	}
+	if !b {
+		//Validation did not pass
+		for _, vError := range valid.Errors {
+			log.Println(vError.Key, vError.Message)
+			err = fmt.Errorf("%s: %s", vError.Key, vError.Message)
+			return
+		}
+	}
+	//Update student in the database
+	conn := db.DB()
+	defer conn.Close()
+
+	_, err = conn.Query(`
+	UPDATE students SET
+	chinese_name = &2,
+	pinyin = &3,
+	english_name = &4,
+	student_id = &5,
+	class_id = &6,
+	sex_id = &7
+	WHERE id = &1`, s.ChineseName, s.Pinyin, s.EnglishName, s.StudentID, s.ClassID, s.SexID)
+
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	return
+}
+
 //NewStudent Adds a new student to the database
 func NewStudent(cName, pinyin, eName, sID, classID, sexID string) (err error) {
 	//Create Student
