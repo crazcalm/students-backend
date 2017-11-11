@@ -21,6 +21,25 @@ func (c *Class) Valid (v *validation.Validation){
 	}
 }
 
+//GetClasses -- returns all the classes that have not been deleted
+func GetClasses()(classes []Class, err error) {
+	conn := db.DB()
+	defer conn.Close()
+
+	//Get classes
+	rows, err := conn.Query(`SELECT id, name FROM class WHERE deleted = false`)
+	for rows.Next(){
+		var class Class
+		err = rows.Scan(&class)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		classes = append(classes, class)
+	}
+	return 
+}
+
 //UpdateClassName -- updates the name of the class
 func UpdateClassName(id int, name string) (err error) {
 	conn := db.DB()
