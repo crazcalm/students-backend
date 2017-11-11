@@ -15,6 +15,45 @@ type StudentController struct {
 	beego.Controller
 }
 
+//Put -- Update a student
+func (c *StudentController) Put() {
+	fmt.Println("Request body below:")
+	fmt.Println(c.Ctx.Input.RequestBody)
+
+	//values in the request
+	var v map[string]string
+	err := json.Unmarshal(c.Ctx.Input.RequestBody, &v)
+	if err != nil {
+		log.Println(err)
+	}
+	fmt.Println(v)
+
+	//Confirm that an id was sent
+	if strings.EqualFold(v["id"], "") == true {
+		err = fmt.Errorf("JSON missing field id")
+		return //This is wrong. I need to return the error to the user
+	}
+
+	_, err = strconv.Atoi(v["id"])
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	//I should validate the input... Later
+	
+
+	//try to updated the students
+	err = models.UpdateStudent(v["id"], v["chinese_name"], v["pinyin"], v["english_name"], v["student_id"], v["class_id"], v["sex_id"])
+	if err != nil {
+		log.Println(err)
+		c.Data["json"] = fmt.Sprintf(err.Error())
+		c.ServeJSON()
+		return
+	}
+	return
+}
+
 //Delete -- Flips the delete flag for a student
 func (c *StudentController) Delete() {
 	fmt.Println("Request body below:")
@@ -28,10 +67,10 @@ func (c *StudentController) Delete() {
 	}
 	fmt.Println(v)
 
-	//Confirm that and id was sent
+	//Confirm that an id was sent
 	if strings.EqualFold(v["id"], "") == true {
 		err = fmt.Errorf("JSON missing field id")
-		return
+		return  //This is wrong. I need to return the error to the user
 	}
 
 	id, err := strconv.Atoi(v["id"])
