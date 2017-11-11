@@ -46,7 +46,7 @@ func GetStudents() (students []Student, err error) {
 
 	//Query
 	rows, err := conn.Query(`
-	SELECT chinese_name, pinyin, english_name, student_id, class_id, sex_id FROM students WHERE deleted = false
+	SELECT id, chinese_name, pinyin, english_name, student_id, class_id, sex_id FROM students WHERE deleted = false
 	`)
 	defer rows.Close()
 
@@ -56,7 +56,7 @@ func GetStudents() (students []Student, err error) {
 	}
 	for rows.Next() {
 		var s Student
-		err = rows.Scan(&s)
+		err = rows.Scan(&s.ID, &s.ChineseName, &s.Pinyin, &s.EnglishName, &s.StudentID, &s.ClassID, &s.SexID)
 		if err != nil {
 			log.Println(err)
 			return

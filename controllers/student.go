@@ -15,6 +15,31 @@ type StudentController struct {
 	beego.Controller
 }
 
+//Get -- Get all the students that have not been deleted
+func (c *StudentController) Get () {
+	students, err := models.GetStudents()
+	if err != nil {
+		log.Println(err)
+		c.Data["json"] = err.Error()
+		c.ServeJSON()
+		return
+	}
+
+	fmt.Println(students)
+	
+	ss, err := json.Marshal(students)
+	if err != nil {
+		log.Println(err)
+		c.Data["json"] = err.Error()
+		c.ServeJSON()
+		return
+	}
+
+	c.Data["json"] = string(ss)
+	c.ServeJSON()
+	return
+}
+
 //Put -- Update a student
 func (c *StudentController) Put() {
 	fmt.Println("Request body below:")
