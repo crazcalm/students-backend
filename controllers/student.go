@@ -1,12 +1,12 @@
 package controllers
 
 import (
-	"strconv"
-	"strings"
 	"encoding/json"
 	"fmt"
 	"github.com/astaxie/beego"
 	"log"
+	"strconv"
+	"strings"
 	"students/models"
 )
 
@@ -14,8 +14,9 @@ import (
 type StudentController struct {
 	beego.Controller
 }
+
 //Delete -- Flips the delete flag for a student
-func (c *StudentController) Delete(){
+func (c *StudentController) Delete() {
 	fmt.Println("Request body below:")
 	fmt.Println(c.Ctx.Input.RequestBody)
 
@@ -51,7 +52,6 @@ func (c *StudentController) Delete(){
 	c.ServeJSON()
 	return
 }
-
 
 //Post -- Learning how to use post
 func (c *StudentController) Post() {

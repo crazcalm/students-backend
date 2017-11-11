@@ -7,20 +7,17 @@ import (
 	"strconv"
 	"strings"
 	"students/db"
-	"time"
 )
 
 //Student struct to hold student information
 type Student struct {
-	ID          int       `json:"id", valid:"Required"`
-	ChineseName string    `csv:"chinese_name", json:"chinese_name", valid:"Required"`
-	Pinyin      string    `csv:"pinyin", json:"pinyin", valid:"Required"`
-	EnglishName string    `csv:"english_name", json:english_name, valid:"Required"`
-	StudentID   string    `csv:"student_id", json:"student_id", orm:"student_id", valid:"Required"`
-	ClassID     int       `json:"class_id", valid:"Required"`
-	SexID       int       `json:"sex_id", valid:"Required"`
-	Created     time.Time `json:"-"`
-	Updated     time.Time `json:"-"`
+	ID          int    `json:"id", valid:"Required"`
+	ChineseName string `csv:"chinese_name", json:"chinese_name", valid:"Required"`
+	Pinyin      string `csv:"pinyin", json:"pinyin", valid:"Required"`
+	EnglishName string `csv:"english_name", json:english_name, valid:"Required"`
+	StudentID   string `csv:"student_id", json:"student_id", orm:"student_id", valid:"Required"`
+	ClassID     int    `json:"class_id", valid:"Required"`
+	SexID       int    `json:"sex_id", valid:"Required"`
 }
 
 // Valid - If your struct implemented interface `validation.ValidFormer`
@@ -41,6 +38,34 @@ func (s *Student) Valid(v *validation.Validation) {
 	}
 }
 
+//GetStudents -- Get all students that have not been deleted
+func GetStudents() (students []Student, err error) {
+	//Gets a connection to the database
+	conn := db.DB()
+	defer conn.Close()
+
+	//Query
+	rows, err := conn.Query(`
+	SELECT chinese_name, pinyin, english_name, student_id, class_id, sex_id FROM students WHERE deleted = false
+	`)
+	defer rows.Close()
+
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	for rows.Next() {
+		var s Student
+		err = rows.Scan(&s)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		students = append(students, s)
+	}
+	return
+}
+
 //DeleteStudent Sets the delete flag to true
 func DeleteStudent(id int) (err error) {
 	//Gets a connection to the database
@@ -59,7 +84,7 @@ func DeleteStudent(id int) (err error) {
 	}
 
 	var name string
-	for rows.Next(){
+	for rows.Next() {
 		err = rows.Scan(&name)
 		if err != nil {
 			log.Println(err)

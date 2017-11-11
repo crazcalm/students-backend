@@ -1,34 +1,41 @@
 package models
 
 import (
-	"log"
 	"fmt"
+	"github.com/astaxie/beego/validation"
+	"log"
 	"strings"
 	"students/db"
-	"github.com/astaxie/beego/validation"
 )
 
 //Class -- testing this out
 type Class struct {
-	ID   int 	`json:"id"`
-	Name string	`json:"name", valid:"Required"`
+	ID   int    `json:"id"`
+	Name string `json:"name", valid:"Required"`
 }
 
 //Valid -- Method for validating the data
-func (c *Class) Valid (v *validation.Validation){
-	if strings.EqualFold(c.Name, ""){
+func (c *Class) Valid(v *validation.Validation) {
+	if strings.EqualFold(c.Name, "") {
 		v.SetError("Name", "Cannot be an empty string")
 	}
 }
 
 //GetClasses -- returns all the classes that have not been deleted
-func GetClasses()(classes []Class, err error) {
+func GetClasses() (classes []Class, err error) {
 	conn := db.DB()
 	defer conn.Close()
 
 	//Get classes
 	rows, err := conn.Query(`SELECT id, name FROM class WHERE deleted = false`)
-	for rows.Next(){
+	defer rows.Close()
+
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	for rows.Next() {
 		var class Class
 		err = rows.Scan(&class)
 		if err != nil {
@@ -37,7 +44,7 @@ func GetClasses()(classes []Class, err error) {
 		}
 		classes = append(classes, class)
 	}
-	return 
+	return
 }
 
 //UpdateClassName -- updates the name of the class
@@ -49,7 +56,7 @@ func UpdateClassName(id int, name string) (err error) {
 	rows, err := conn.Query(`SELECT name FROM class WHERE id = $1`, id)
 
 	var originalName string
-	for rows.Next(){
+	for rows.Next() {
 		err = rows.Scan(&originalName)
 		if err != nil {
 			log.Println(err)
@@ -84,7 +91,7 @@ func DeleteClass(id int) (err error) {
 	}
 
 	var name string
-	for rows.Next(){
+	for rows.Next() {
 		err = rows.Scan(&name)
 		if err != nil {
 			log.Println(err)
@@ -113,7 +120,7 @@ func NewClass(name string) (err error) {
 
 	//Validate the data coming in
 	valid := validation.Validation{}
-	
+
 	//Validate New Class
 	b, err := valid.Valid(c)
 	if err != nil {
@@ -128,7 +135,6 @@ func NewClass(name string) (err error) {
 			return
 		}
 	}
-
 
 	//Database connection
 	conn := db.DB()
