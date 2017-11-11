@@ -150,13 +150,13 @@ func UpdateStudent(ID, cName, pinyin, eName, sID, classID, sexID string) (err er
 
 	_, err = conn.Query(`
 	UPDATE students SET
-	chinese_name = &2,
-	pinyin = &3,
-	english_name = &4,
-	student_id = &5,
-	class_id = &6,
-	sex_id = &7
-	WHERE id = &1`, s.ChineseName, s.Pinyin, s.EnglishName, s.StudentID, s.ClassID, s.SexID)
+	chinese_name = $2,
+	pinyin = $3,
+	english_name = $4,
+	student_id = $5,
+	class_id = $6,
+	sex_id = $7
+	WHERE id = $1`, s.ID, s.ChineseName, s.Pinyin, s.EnglishName, s.StudentID, s.ClassID, s.SexID)
 
 	if err != nil {
 		log.Println(err)

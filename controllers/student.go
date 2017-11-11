@@ -16,7 +16,7 @@ type StudentController struct {
 }
 
 //Get -- Get all the students that have not been deleted
-func (c *StudentController) Get () {
+func (c *StudentController) Get() {
 	students, err := models.GetStudents()
 	if err != nil {
 		log.Println(err)
@@ -26,7 +26,7 @@ func (c *StudentController) Get () {
 	}
 
 	fmt.Println(students)
-	
+
 	ss, err := json.Marshal(students)
 	if err != nil {
 		log.Println(err)
@@ -50,23 +50,29 @@ func (c *StudentController) Put() {
 	err := json.Unmarshal(c.Ctx.Input.RequestBody, &v)
 	if err != nil {
 		log.Println(err)
+		c.Data["json"] = err.Error()
+		c.ServeJSON()
+		return
 	}
 	fmt.Println(v)
 
 	//Confirm that an id was sent
 	if strings.EqualFold(v["id"], "") == true {
 		err = fmt.Errorf("JSON missing field id")
-		return //This is wrong. I need to return the error to the user
+		c.Data["json"] = err.Error()
+		c.ServeJSON()
+		return
 	}
 
 	_, err = strconv.Atoi(v["id"])
 	if err != nil {
 		log.Println(err)
+		c.Data["json"] = "Make sure the 'id' is a string representation of a number"
+		c.ServeJSON()
 		return
 	}
 
 	//I should validate the input... Later
-	
 
 	//try to updated the students
 	err = models.UpdateStudent(v["id"], v["chinese_name"], v["pinyin"], v["english_name"], v["student_id"], v["class_id"], v["sex_id"])
@@ -76,6 +82,8 @@ func (c *StudentController) Put() {
 		c.ServeJSON()
 		return
 	}
+	c.Data["json"] = "sucess"
+	c.ServeJSON()
 	return
 }
 
@@ -95,7 +103,7 @@ func (c *StudentController) Delete() {
 	//Confirm that an id was sent
 	if strings.EqualFold(v["id"], "") == true {
 		err = fmt.Errorf("JSON missing field id")
-		return  //This is wrong. I need to return the error to the user
+		return //This is wrong. I need to return the error to the user
 	}
 
 	id, err := strconv.Atoi(v["id"])
