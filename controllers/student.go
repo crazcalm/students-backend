@@ -97,18 +97,25 @@ func (c *StudentController) Delete() {
 	err := json.Unmarshal(c.Ctx.Input.RequestBody, &v)
 	if err != nil {
 		log.Println(err)
+		c.Data["json"] = err.Error()
+		c.ServeJSON()
+		return
 	}
 	fmt.Println(v)
 
 	//Confirm that an id was sent
 	if strings.EqualFold(v["id"], "") == true {
 		err = fmt.Errorf("JSON missing field id")
-		return //This is wrong. I need to return the error to the user
+		c.Data["json"] = err.Error()
+		c.ServeJSON()
+		return
 	}
 
 	id, err := strconv.Atoi(v["id"])
 	if err != nil {
 		log.Println(err)
+		c.Data["json"] = err.Error()
+		c.ServeJSON()
 		return
 	}
 
