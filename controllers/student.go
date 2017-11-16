@@ -74,7 +74,7 @@ func (c *StudentController) Put() {
 
 	//I should validate the input... Later
 
-	//try to updated the students
+	//try to updated the student
 	err = models.UpdateStudent(v["id"], v["chinese_name"], v["pinyin"], v["english_name"], v["student_id"], v["class_id"], v["sex_id"])
 	if err != nil {
 		log.Println(err)
@@ -106,6 +106,7 @@ func (c *StudentController) Delete() {
 	//Confirm that an id was sent
 	if strings.EqualFold(v["id"], "") == true {
 		err = fmt.Errorf("JSON missing field id")
+		log.Println(err)
 		c.Data["json"] = err.Error()
 		c.ServeJSON()
 		return
