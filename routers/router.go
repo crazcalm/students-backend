@@ -10,4 +10,7 @@ func init() {
 
 	//Messing with students
 	beego.Router("/student", &controllers.StudentController{})
+
+	//Messing with classes
+	beego.Router("class", &controllers.ClassesController{})
 }

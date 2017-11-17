@@ -37,7 +37,7 @@ func GetClasses() (classes []Class, err error) {
 
 	for rows.Next() {
 		var class Class
-		err = rows.Scan(&class)
+		err = rows.Scan(&class.ID, &class.Name)
 		if err != nil {
 			log.Println(err)
 			return
