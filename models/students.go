@@ -67,7 +67,13 @@ func GetStudents() (students []Student, err error) {
 }
 
 //DeleteStudent Sets the delete flag to true
-func DeleteStudent(id int) (err error) {
+func DeleteStudent(id string) (err error) {
+	idInt, err := strconv.Atoi(id)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
 	//Gets a connection to the database
 	conn := db.DB()
 	defer conn.Close()
@@ -75,7 +81,7 @@ func DeleteStudent(id int) (err error) {
 	//Determine if student exists
 	rows, err := conn.Query(`
 	SELECT chinese_name FROM students WHERE id = $1
-	`, id)
+	`, idInt)
 	defer rows.Close()
 
 	if err != nil {

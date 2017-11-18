@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"github.com/astaxie/beego"
 	"log"
-	"strconv"
-	"strings"
 	"students/models"
 )
 
@@ -56,23 +54,14 @@ func (c *StudentController) Put() {
 	}
 	fmt.Println(v)
 
-	//Confirm that an id was sent
-	if strings.EqualFold(v["id"], "") == true {
-		err = fmt.Errorf("JSON missing field id")
+	//Validation of user input
+	err = ValidateUserInput(v, []string{"id", "chinese_name", "pinyin", "student_id", "class_id", "sex_id"})
+	if err != nil {
+		log.Println(err)
 		c.Data["json"] = err.Error()
 		c.ServeJSON()
 		return
 	}
-
-	_, err = strconv.Atoi(v["id"])
-	if err != nil {
-		log.Println(err)
-		c.Data["json"] = "Make sure the 'id' is a string representation of a number"
-		c.ServeJSON()
-		return
-	}
-
-	//I should validate the input... Later
 
 	//try to updated the student
 	err = models.UpdateStudent(v["id"], v["chinese_name"], v["pinyin"], v["english_name"], v["student_id"], v["class_id"], v["sex_id"])
@@ -103,16 +92,8 @@ func (c *StudentController) Delete() {
 	}
 	fmt.Println(v)
 
-	//Confirm that an id was sent
-	if strings.EqualFold(v["id"], "") == true {
-		err = fmt.Errorf("JSON missing field id")
-		log.Println(err)
-		c.Data["json"] = err.Error()
-		c.ServeJSON()
-		return
-	}
-
-	id, err := strconv.Atoi(v["id"])
+	//Validate user input
+	err = ValidateUserInput(v, []string{"id"})
 	if err != nil {
 		log.Println(err)
 		c.Data["json"] = err.Error()
@@ -121,7 +102,7 @@ func (c *StudentController) Delete() {
 	}
 
 	//Try to delete the student
-	err = models.DeleteStudent(id)
+	err = models.DeleteStudent(v["id"])
 	if err != nil {
 		log.Println(err)
 		c.Data["json"] = fmt.Sprintf(err.Error())

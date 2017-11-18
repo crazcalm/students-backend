@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/astaxie/beego/validation"
 	"log"
+	"strconv"
 	"strings"
 	"students/db"
 )
@@ -48,12 +49,18 @@ func GetClasses() (classes []Class, err error) {
 }
 
 //UpdateClassName -- updates the name of the class
-func UpdateClassName(id int, name string) (err error) {
+func UpdateClassName(id string, name string) (err error) {
+	idInt, err := strconv.Atoi(id)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
 	conn := db.DB()
 	defer conn.Close()
 
 	//Determine if the class exists
-	rows, err := conn.Query(`SELECT name FROM class WHERE id = $1`, id)
+	rows, err := conn.Query(`SELECT name FROM class WHERE id = $1`, idInt)
 
 	var originalName string
 	for rows.Next() {
@@ -70,7 +77,7 @@ func UpdateClassName(id int, name string) (err error) {
 	}
 
 	//Update the name
-	_, err = conn.Query(`UPDATE class SET name = $2 WHERE id = $1`, id, name)
+	_, err = conn.Query(`UPDATE class SET name = $2 WHERE id = $1`, idInt, name)
 	if err != nil {
 		log.Println(err)
 		return
@@ -79,12 +86,18 @@ func UpdateClassName(id int, name string) (err error) {
 }
 
 //DeleteClass -- flips delete flag for class
-func DeleteClass(id int) (err error) {
+func DeleteClass(id string) (err error) {
+	idInt, err := strconv.Atoi(id)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
 	conn := db.DB()
 	defer conn.Close()
 
 	//Determine if the class exists
-	rows, err := conn.Query(`SELECT name FROM class WHERE id = $1`, id)
+	rows, err := conn.Query(`SELECT name FROM class WHERE id = $1`, idInt)
 	if err != nil {
 		log.Println(err)
 		return
@@ -105,7 +118,7 @@ func DeleteClass(id int) (err error) {
 	}
 
 	//Flip the delete flag
-	_, err = conn.Query(`UPDATE class SET deleted = true WHERE id = $1`, id)
+	_, err = conn.Query(`UPDATE class SET deleted = true WHERE id = $1`, idInt)
 	if err != nil {
 		log.Println(err)
 		return

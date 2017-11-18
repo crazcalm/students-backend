@@ -1,12 +1,11 @@
 package controllers
 
 import (
-	"log"
-	"fmt"
 	"encoding/json"
-	"strings"
-	"strconv"
+	"fmt"
 	"github.com/astaxie/beego"
+	"log"
+	"strings"
 	"students/models"
 )
 
@@ -16,7 +15,7 @@ type ClassesController struct {
 }
 
 //Get -- Returns a JSON object of all the non-deleted classes
-func (c *ClassesController) Get (){
+func (c *ClassesController) Get() {
 	classes, err := models.GetClasses()
 	if err != nil {
 		log.Println(err)
@@ -40,8 +39,8 @@ func (c *ClassesController) Get (){
 	return
 }
 
-//Post -- 
-func (c *ClassesController) Post (){
+//Post --
+func (c *ClassesController) Post() {
 	fmt.Println("Request body below:")
 	fmt.Println(c.Ctx.Input.RequestBody)
 
@@ -55,6 +54,15 @@ func (c *ClassesController) Post (){
 		return
 	}
 	fmt.Println(v)
+
+	//Validate user input
+	err = ValidateUserInput(v, []string{"name"})
+	if err != nil {
+		log.Println(err)
+		c.Data["json"] = err.Error()
+		c.ServeJSON()
+		return
+	}
 
 	//Create the new class
 	err = models.NewClass(v["name"])
@@ -71,7 +79,7 @@ func (c *ClassesController) Post (){
 }
 
 //Put --
-func (c *ClassesController) Put (){
+func (c *ClassesController) Put() {
 	fmt.Println("Request body below:")
 	fmt.Println(c.Ctx.Input.RequestBody)
 
@@ -85,8 +93,17 @@ func (c *ClassesController) Put (){
 		return
 	}
 
+	//Validate user input
+	err = ValidateUserInput(v, []string{"id", "name"})
+	if err != nil {
+		log.Println(err)
+		c.Data["json"] = err.Error()
+		c.ServeJSON()
+		return
+	}
+
 	//Confirm that the id was sent
-	if strings.EqualFold(v["id"], ""){
+	if strings.EqualFold(v["id"], "") {
 		err = fmt.Errorf("JSON field missing id")
 		log.Println(err)
 		c.Data["json"] = err.Error()
@@ -94,20 +111,8 @@ func (c *ClassesController) Put (){
 		return
 	}
 
-	//Confirm that the id was a string of a number
-	classID, err := strconv.Atoi(v["id"])
-	if err != nil {
-		err = fmt.Errorf("Make sure that the 'id' is a string representation of a number")
-		log.Println(err)
-		c.Data["json"] = err.Error()
-		c.ServeJSON()
-		return
-	}
-
-	//Should validate the rest in the user input
-
 	//try to update a class
-	err = models.UpdateClassName(classID, v["name"])
+	err = models.UpdateClassName(v["id"], v["name"])
 	if err != nil {
 		log.Println(err)
 		c.Data["json"] = err.Error()
@@ -122,7 +127,7 @@ func (c *ClassesController) Put (){
 }
 
 //Delete -- Flips the delete flag or for a class
-func (c *ClassesController) Delete (){
+func (c *ClassesController) Delete() {
 	fmt.Println("Request body below:")
 	fmt.Println(c.Ctx.Input.RequestBody)
 
@@ -136,25 +141,15 @@ func (c *ClassesController) Delete (){
 		return
 	}
 
-	//Confirm that the id was sent
-	if strings.EqualFold(v["id"], ""){
-		err = fmt.Errorf("JSON missing field id")
-		log.Println(err)
-		c.Data["json"] = err.Error()
-		c.ServeJSON()
-		return
-	}
-
-	id, err := strconv.Atoi(v["id"])
+	//Validate user input
+	err = ValidateUserInput(v, []string{"id"})
 	if err != nil {
 		log.Println(err)
-		c.Data["json"] = err.Error()
-		c.ServeJSON()
 		return
 	}
 
 	//try to delete a class
-	err = models.DeleteClass(id)
+	err = models.DeleteClass(v["id"])
 	if err != nil {
 		log.Println(err)
 		c.Data["json"] = err.Error()
