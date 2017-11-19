@@ -7,6 +7,7 @@ import (
 	"log"
 	"strings"
 	"students/models"
+	"students/constants"
 )
 
 //ClassesController -- Controller for the classes model
@@ -73,7 +74,7 @@ func (c *ClassesController) Post() {
 		return
 	}
 
-	c.Data["json"] = "success"
+	c.Data["json"] = constants.SUCCESS
 	c.ServeJSON()
 	return
 }
@@ -120,7 +121,7 @@ func (c *ClassesController) Put() {
 		return
 	}
 
-	c.Data["json"] = "success"
+	c.Data["json"] = constants.SUCCESS
 	c.ServeJSON()
 	return
 
@@ -157,7 +158,7 @@ func (c *ClassesController) Delete() {
 		return
 	}
 
-	c.Data["json"] = "success"
+	c.Data["json"] = constants.SUCCESS
 	c.ServeJSON()
 	return
 }

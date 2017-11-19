@@ -6,6 +6,7 @@ import (
 	"github.com/astaxie/beego"
 	"log"
 	"students/models"
+	"students/constants"
 )
 
 //StudentController -- What I am using to learn beego
@@ -67,11 +68,11 @@ func (c *StudentController) Put() {
 	err = models.UpdateStudent(v["id"], v["chinese_name"], v["pinyin"], v["english_name"], v["student_id"], v["class_id"], v["sex_id"])
 	if err != nil {
 		log.Println(err)
-		c.Data["json"] = fmt.Sprintf(err.Error())
+		c.Data["json"] = err.Error()
 		c.ServeJSON()
 		return
 	}
-	c.Data["json"] = "sucess"
+	c.Data["json"] = constants.SUCCESS
 	c.ServeJSON()
 	return
 }
@@ -105,11 +106,11 @@ func (c *StudentController) Delete() {
 	err = models.DeleteStudent(v["id"])
 	if err != nil {
 		log.Println(err)
-		c.Data["json"] = fmt.Sprintf(err.Error())
+		c.Data["json"] = err.Error()
 		c.ServeJSON()
 		return
 	}
-	c.Data["json"] = "success"
+	c.Data["json"] = constants.SUCCESS
 	c.ServeJSON()
 	return
 }
@@ -137,11 +138,11 @@ func (c *StudentController) Post() {
 	err = models.NewStudent(v["chinese_name"], v["pinyin"], v["english_name"], v["student_id"], v["class_id"], v["sex_id"])
 	if err != nil {
 		log.Println(err)
-		c.Data["json"] = fmt.Sprintf(err.Error())
+		c.Data["json"] = err.Error()
 		c.ServeJSON()
 		return
 	}
-	c.Data["json"] = "sucess"
+	c.Data["json"] = constants.SUCCESS
 	c.ServeJSON()
 	return
 }

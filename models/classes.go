@@ -12,24 +12,27 @@ import (
 //Class -- testing this out
 type Class struct {
 	ID   int    `json:"id"`
-	Name string `json:"name", valid:"Required"`
+	Name string `json:"name"`
 }
 
 //Valid -- Method for validating the data
 func (c *Class) Valid(v *validation.Validation) {
 	if strings.EqualFold(c.Name, "") {
-		v.SetError("Name", "Cannot be an empty string")
+		err := v.SetError("Name", "Cannot be an empty string")
+		if err != nil {
+			log.Println(err)
+			return
+		}
 	}
 }
 
 //GetClasses -- returns all the classes that have not been deleted
 func GetClasses() (classes []Class, err error) {
 	conn := db.DB()
-	defer conn.Close()
+	defer conn.Close() // nolint: errcheck
 
 	//Get classes
 	rows, err := conn.Query(`SELECT id, name FROM class WHERE deleted = false`)
-	defer rows.Close()
 
 	if err != nil {
 		log.Println(err)
@@ -45,6 +48,12 @@ func GetClasses() (classes []Class, err error) {
 		}
 		classes = append(classes, class)
 	}
+
+	err = rows.Close()
+	if err != nil {
+		log.Println(err)
+		return
+	}
 	return
 }
 
@@ -57,10 +66,14 @@ func UpdateClassName(id string, name string) (err error) {
 	}
 
 	conn := db.DB()
-	defer conn.Close()
+	defer conn.Close() // nolint: errcheck
 
 	//Determine if the class exists
 	rows, err := conn.Query(`SELECT name FROM class WHERE id = $1`, idInt)
+	if err != nil {
+		log.Println(err)
+		return
+	}
 
 	var originalName string
 	for rows.Next() {
@@ -71,7 +84,7 @@ func UpdateClassName(id string, name string) (err error) {
 		}
 	}
 
-	if strings.EqualFold(name, "") == true {
+	if strings.EqualFold(name, "") {
 		err = fmt.Errorf("Class does not exist")
 		return
 	}
@@ -82,6 +95,13 @@ func UpdateClassName(id string, name string) (err error) {
 		log.Println(err)
 		return
 	}
+
+	err = rows.Close()
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
 	return
 }
 
@@ -94,7 +114,7 @@ func DeleteClass(id string) (err error) {
 	}
 
 	conn := db.DB()
-	defer conn.Close()
+	defer conn.Close() // nolint: errcheck
 
 	//Determine if the class exists
 	rows, err := conn.Query(`SELECT name FROM class WHERE id = $1`, idInt)
@@ -112,7 +132,7 @@ func DeleteClass(id string) (err error) {
 		}
 	}
 
-	if strings.EqualFold(name, "") == true {
+	if strings.EqualFold(name, "") {
 		err = fmt.Errorf("Class does not exist")
 		return
 	}
@@ -123,6 +143,13 @@ func DeleteClass(id string) (err error) {
 		log.Println(err)
 		return
 	}
+
+	err = rows.Close()
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
 	return
 }
 
@@ -151,9 +178,10 @@ func NewClass(name string) (err error) {
 
 	//Database connection
 	conn := db.DB()
-	defer conn.Close()
+	defer conn.Close() // nolint: errcheck
 
 	row := conn.QueryRow("INSERT INTO class(name) values($1)", c.Name)
 	log.Println(row)
+
 	return
 }
