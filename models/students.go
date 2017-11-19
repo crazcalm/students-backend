@@ -1,12 +1,12 @@
 package models
 
 import (
+	"database/sql"
 	"fmt"
 	"github.com/astaxie/beego/validation"
 	"log"
 	"strconv"
 	"strings"
-	"students/db"
 )
 
 //Student struct to hold student information
@@ -55,10 +55,9 @@ func (s *Student) Valid(v *validation.Validation) {
 }
 
 //GetStudents -- Get all students that have not been deleted
-func GetStudents() (students []Student, err error) {
-	//Gets a connection to the database
-	conn := db.DB()
-	defer conn.Close()  // nolint: errcheck
+func GetStudents(conn *sql.DB) (students []Student, err error) {
+	//Closes connection to the database
+	defer conn.Close() // nolint: errcheck
 
 	//Query
 	rows, err := conn.Query(`
@@ -84,20 +83,19 @@ func GetStudents() (students []Student, err error) {
 		log.Println(err)
 		return
 	}
-	
+
 	return
 }
 
 //DeleteStudent Sets the delete flag to true
-func DeleteStudent(id string) (err error) {
+func DeleteStudent(conn *sql.DB, id string) (err error) {
 	idInt, err := strconv.Atoi(id)
 	if err != nil {
 		log.Println(err)
 		return err
 	}
 
-	//Gets a connection to the database
-	conn := db.DB()
+	//Closes connection to the database
 	defer conn.Close() // nolint: errcheck
 
 	//Determine if student exists
@@ -141,7 +139,7 @@ func DeleteStudent(id string) (err error) {
 }
 
 //UpdateStudent -- Updates the information for a student
-func UpdateStudent(ID, cName, pinyin, eName, sID, classID, sexID string) (err error) {
+func UpdateStudent(conn *sql.DB, ID, cName, pinyin, eName, sID, classID, sexID string) (err error) {
 	//initialize a student
 	s := new(Student)
 	s.ID, err = strconv.Atoi(ID)
@@ -178,7 +176,7 @@ func UpdateStudent(ID, cName, pinyin, eName, sID, classID, sexID string) (err er
 		}
 	}
 	//Update student in the database
-	conn := db.DB()
+	//Close the databse connection
 	defer conn.Close() // nolint: errcheck
 
 	_, err = conn.Query(`
@@ -199,7 +197,7 @@ func UpdateStudent(ID, cName, pinyin, eName, sID, classID, sexID string) (err er
 }
 
 //NewStudent Adds a new student to the database
-func NewStudent(cName, pinyin, eName, sID, classID, sexID string) (err error) {
+func NewStudent(conn *sql.DB, cName, pinyin, eName, sID, classID, sexID string) (err error) {
 	//Create Student
 	s := new(Student)
 	s.ChineseName = cName
@@ -234,7 +232,6 @@ func NewStudent(cName, pinyin, eName, sID, classID, sexID string) (err error) {
 	}
 
 	//Add the new student to the database
-	conn := db.DB()
 	defer conn.Close() // nolint: errcheck
 	row := conn.QueryRow(`
 		INSERT INTO students 

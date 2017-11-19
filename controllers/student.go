@@ -5,8 +5,9 @@ import (
 	"fmt"
 	"github.com/astaxie/beego"
 	"log"
-	"students/models"
 	"students/constants"
+	"students/db"
+	"students/models"
 )
 
 //StudentController -- What I am using to learn beego
@@ -16,7 +17,7 @@ type StudentController struct {
 
 //Get -- Get all the students that have not been deleted
 func (c *StudentController) Get() {
-	students, err := models.GetStudents()
+	students, err := models.GetStudents(db.DB())
 	if err != nil {
 		log.Println(err)
 		c.Data["json"] = err.Error()
@@ -65,7 +66,7 @@ func (c *StudentController) Put() {
 	}
 
 	//try to updated the student
-	err = models.UpdateStudent(v["id"], v["chinese_name"], v["pinyin"], v["english_name"], v["student_id"], v["class_id"], v["sex_id"])
+	err = models.UpdateStudent(db.DB(), v["id"], v["chinese_name"], v["pinyin"], v["english_name"], v["student_id"], v["class_id"], v["sex_id"])
 	if err != nil {
 		log.Println(err)
 		c.Data["json"] = err.Error()
@@ -103,7 +104,7 @@ func (c *StudentController) Delete() {
 	}
 
 	//Try to delete the student
-	err = models.DeleteStudent(v["id"])
+	err = models.DeleteStudent(db.DB(), v["id"])
 	if err != nil {
 		log.Println(err)
 		c.Data["json"] = err.Error()
@@ -128,14 +129,15 @@ func (c *StudentController) Post() {
 	}
 	fmt.Println(v)
 
-	//json map
-	name := v["chinese_name"]
-	if name == "" {
-		c.Ctx.WriteString("name is empty\n")
+	err = ValidateUserInput(v, []string{"chinese_name", "pinyin", "english_name", "student_id", "class_id", "sex_id"})
+	if err != nil {
+		log.Println(err)
+		c.Data["json"] = err.Error()
+		c.ServeJSON()
 		return
 	}
 
-	err = models.NewStudent(v["chinese_name"], v["pinyin"], v["english_name"], v["student_id"], v["class_id"], v["sex_id"])
+	err = models.NewStudent(db.DB(), v["chinese_name"], v["pinyin"], v["english_name"], v["student_id"], v["class_id"], v["sex_id"])
 	if err != nil {
 		log.Println(err)
 		c.Data["json"] = err.Error()

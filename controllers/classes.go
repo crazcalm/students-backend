@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"github.com/astaxie/beego"
 	"log"
-	"strings"
-	"students/models"
 	"students/constants"
+	"students/db"
+	"students/models"
 )
 
 //ClassesController -- Controller for the classes model
@@ -17,7 +17,7 @@ type ClassesController struct {
 
 //Get -- Returns a JSON object of all the non-deleted classes
 func (c *ClassesController) Get() {
-	classes, err := models.GetClasses()
+	classes, err := models.GetClasses(db.DB())
 	if err != nil {
 		log.Println(err)
 		c.Data["json"] = err.Error()
@@ -66,7 +66,7 @@ func (c *ClassesController) Post() {
 	}
 
 	//Create the new class
-	err = models.NewClass(v["name"])
+	err = models.NewClass(db.DB(), v["name"])
 	if err != nil {
 		log.Println(err)
 		c.Data["json"] = err.Error()
@@ -103,17 +103,8 @@ func (c *ClassesController) Put() {
 		return
 	}
 
-	//Confirm that the id was sent
-	if strings.EqualFold(v["id"], "") {
-		err = fmt.Errorf("JSON field missing id")
-		log.Println(err)
-		c.Data["json"] = err.Error()
-		c.ServeJSON()
-		return
-	}
-
 	//try to update a class
-	err = models.UpdateClassName(v["id"], v["name"])
+	err = models.UpdateClassName(db.DB(), v["id"], v["name"])
 	if err != nil {
 		log.Println(err)
 		c.Data["json"] = err.Error()
@@ -150,7 +141,7 @@ func (c *ClassesController) Delete() {
 	}
 
 	//try to delete a class
-	err = models.DeleteClass(v["id"])
+	err = models.DeleteClass(db.DB(), v["id"])
 	if err != nil {
 		log.Println(err)
 		c.Data["json"] = err.Error()

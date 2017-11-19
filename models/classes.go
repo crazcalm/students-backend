@@ -1,12 +1,12 @@
 package models
 
 import (
+	"database/sql"
 	"fmt"
 	"github.com/astaxie/beego/validation"
 	"log"
 	"strconv"
 	"strings"
-	"students/db"
 )
 
 //Class -- testing this out
@@ -27,8 +27,7 @@ func (c *Class) Valid(v *validation.Validation) {
 }
 
 //GetClasses -- returns all the classes that have not been deleted
-func GetClasses() (classes []Class, err error) {
-	conn := db.DB()
+func GetClasses(conn *sql.DB) (classes []Class, err error) {
 	defer conn.Close() // nolint: errcheck
 
 	//Get classes
@@ -58,14 +57,14 @@ func GetClasses() (classes []Class, err error) {
 }
 
 //UpdateClassName -- updates the name of the class
-func UpdateClassName(id string, name string) (err error) {
+func UpdateClassName(conn *sql.DB, id string, name string) (err error) {
 	idInt, err := strconv.Atoi(id)
 	if err != nil {
 		log.Println(err)
 		return
 	}
 
-	conn := db.DB()
+	// Close the database connection
 	defer conn.Close() // nolint: errcheck
 
 	//Determine if the class exists
@@ -106,14 +105,14 @@ func UpdateClassName(id string, name string) (err error) {
 }
 
 //DeleteClass -- flips delete flag for class
-func DeleteClass(id string) (err error) {
+func DeleteClass(conn *sql.DB, id string) (err error) {
 	idInt, err := strconv.Atoi(id)
 	if err != nil {
 		log.Println(err)
 		return
 	}
 
-	conn := db.DB()
+	// Close the database
 	defer conn.Close() // nolint: errcheck
 
 	//Determine if the class exists
@@ -154,7 +153,7 @@ func DeleteClass(id string) (err error) {
 }
 
 //NewClass -- adds a new class to the database
-func NewClass(name string) (err error) {
+func NewClass(conn *sql.DB, name string) (err error) {
 	c := new(Class)
 	c.Name = name
 
@@ -176,8 +175,7 @@ func NewClass(name string) (err error) {
 		}
 	}
 
-	//Database connection
-	conn := db.DB()
+	//Close database connection
 	defer conn.Close() // nolint: errcheck
 
 	row := conn.QueryRow("INSERT INTO class(name) values($1)", c.Name)
